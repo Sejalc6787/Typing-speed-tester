@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login System Test - KeySprint</title>
+    <style>
+        body {
+            font-family: 'Courier New', monospace;
+            background: #323437;
+            color: #d1d0c5;
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        h1 { color: #e2b714; }
+        .test-section {
+            background: #2c2e31;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            border-left: 4px solid #e2b714;
+        }
+        .test-item {
+            padding: 10px;
+            margin: 10px 0;
+            background: #1a1a1a;
+            border-radius: 4px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .status {
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        .pass { background: #10b981; color: white; }
+        .fail { background: #ca4754; color: white; }
+        .pending { background: #646669; color: white; }
+        button {
+            background: #e2b714;
+            color: #323437;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            margin: 5px;
+        }
+        button:hover { filter: brightness(1.1); }
+        .info { color: #646669; font-size: 0.9em; margin-top: 5px; }
+        #console-output {
+            background: #0a0a0a;
+            padding: 15px;
+            border-radius: 4px;
+            max-height: 300px;
+            overflow-y: auto;
+            font-size: 0.85em;
+            margin-top: 10px;
+        }
+        .log-entry { margin: 5px 0; }
+        .log-success { color: #10b981; }
+        .log-error { color: #ca4754; }
+        .log-info { color: #e2b714; }
+    </style>
+</head>
+<body>
+    <h1>🔐 KeySprint Login System Test</h1>
+    <p>This page tests all login and account features to ensure everything works correctly.</p>
+
+    <div class="test-section">
+        <h2>1. DOM Elements Check</h2>
+        <div id="dom-tests"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>2. JavaScript Functions Check</h2>
+        <div id="js-tests"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>3. Firebase Integration Check</h2>
+        <div id="firebase-tests"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>4. Interactive Tests</h2>
+        <p>Click buttons to test functionality:</p>
+        <button onclick="testAccountButton()">Test Account Button</button>
+        <button onclick="testLoginModal()">Test Login Modal</button>
+        <button onclick="testSignupModal()">Test Signup Modal</button>
+        <button onclick="testUserMenu()">Test User Menu</button>
+        <button onclick="testSettingsModal()">Test Settings Modal</button>
+        <button onclick="testUsernameModal()">Test Username Modal</button>
+        <div id="interactive-results"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>5. Console Output</h2>
+        <div id="console-output"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>6. Quick Actions</h2>
+        <button onclick="window.location.href='/'">Go to Main Site</button>
+        <button onclick="location.reload()">Refresh Tests</button>
+        <button onclick="clearConsole()">Clear Console</button>
+    </div>
+
+    <script>
+        const logs = [];
+        
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            logs.push({ timestamp, message, type });
+            updateConsole();
+        }
+
+        function updateConsole() {
+            const output = document.getElementById('console-output');
+            output.innerHTML = logs.map(l => 
+                `<div class="log-entry log-${l.type}">[${l.timestamp}] ${l.message}</div>`
+            ).join('');
+            output.scrollTop = output.scrollHeight;
+        }
+
+        function clearConsole() {
+            logs.length = 0;
+            updateConsole();
+        }
+
+        function createTestItem(name, status, info = '') {
+            return `
+                <div class="test-item">
+                    <div>
+                        <strong>${name}</strong>
+                        ${info ? `<div class="info">${info}</div>` : ''}
+                    </div>
+                    <span class="status ${status}">${status.toUpperCase()}</span>
+                </div>
+            `;
+        }
+
+        // Test 1: DOM Elements
+        function testDOMElements() {
+            const tests = [
+                { name: 'Account Button', id: 'accountBtn' },
+                { name: 'Login Modal', id: 'loginModal' },
+                { name: 'Signup Modal', id: 'signupModal' },
+                { name: 'User Menu', id: 'userMenu' },
+                { name: 'Settings Modal', id: 'settingsModal' },
+                { name: 'Username Modal', id: 'usernameModal' },
+                { name: 'Theme Modal', id: 'themeModal' },
+                { name: 'Team Modal', id: 'teamModal' },
+                { name: 'Words Container', id: 'wordsContainer' },
+                { name: 'Typing Input', id: 'typingInput' },
+            ];
+
+            const container = document.getElementById('dom-tests');
+            let html = '';
+            
+            tests.forEach(test => {
+                const element = parent.document.getElementById(test.id);
+                const status = element ? 'pass' : 'fail';
+                const info = element ? `Found: ${element.tagName}` : 'Element not found';
+                html += createTestItem(test.name, status, info);
+                log(`DOM Test: ${test.name} - ${status}`, status === 'pass' ? 'success' : 'error');
+            });
+            
+            container.innerHTML = html;
+        }
+
+        // Test 2: JavaScript Functions
+        function testJSFunctions() {
+            const container = document.getElementById('js-tests');
+            let html = '';
+            
+            try {
+                // Check if main classes exist
+                const tests = [
+                    { name: 'BackgroundAnimation class', check: () => typeof parent.BackgroundAnimation !== 'undefined' },
+                    { name: 'TypingTest class', check: () => typeof parent.TypingTest !== 'undefined' },
+                    { name: 'authManager object', check: () => typeof parent.authManager !== 'undefined' },
+                    { name: 'Firebase Auth', check: () => typeof parent.window.firebaseAuth !== 'undefined' },
+                    { name: 'Firebase Functions', check: () => typeof parent.window.firebaseAuthFunctions !== 'undefined' },
+                ];
+
+                tests.forEach(test => {
+                    try {
+                        const result = test.check();
+                        const status = result ? 'pass' : 'fail';
+                        html += createTestItem(test.name, status);
+                        log(`JS Test: ${test.name} - ${status}`, status === 'pass' ? 'success' : 'error');
+                    } catch (e) {
+                        html += createTestItem(test.name, 'fail', e.message);
+                        log(`JS Test: ${test.name} - fail: ${e.message}`, 'error');
+                    }
+                });
+            } catch (e) {
+                html += createTestItem('JavaScript Tests', 'fail', 'Cannot access parent window');
+                log('JS Tests failed: Cannot access parent window', 'error');
+            }
+            
+            container.innerHTML = html;
+        }
+
+        // Test 3: Firebase Integration
+        function testFirebase() {
+            const container = document.getElementById('firebase-tests');
+            let html = '';
+            
+            try {
+                const firebaseAuth = parent.window.firebaseAuth;
+                const firebaseFunctions = parent.window.firebaseAuthFunctions;
+                
+                html += createTestItem(
+                    'Firebase SDK Loaded',
+                    firebaseAuth ? 'pass' : 'fail',
+                    firebaseAuth ? 'Firebase Auth initialized' : 'Firebase not loaded'
+                );
+                
+                html += createTestItem(
+                    'Auth Functions Available',
+                    firebaseFunctions ? 'pass' : 'fail',
+                    firebaseFunctions ? Object.keys(firebaseFunctions).length + ' functions' : 'Functions not loaded'
+                );
+
+                log('Firebase Test: SDK - ' + (firebaseAuth ? 'pass' : 'fail'), firebaseAuth ? 'success' : 'error');
+            } catch (e) {
+                html += createTestItem('Firebase Tests', 'fail', e.message);
+                log('Firebase Test failed: ' + e.message, 'error');
+            }
+            
+            container.innerHTML = html;
+        }
+
+        // Interactive Tests
+        function testAccountButton() {
+            const results = document.getElementById('interactive-results');
+            try {
+                const btn = parent.document.getElementById('accountBtn');
+                if (btn) {
+                    btn.click();
+                    results.innerHTML = createTestItem('Account Button Click', 'pass', 'Button clicked successfully');
+                    log('Interactive: Account button clicked', 'success');
+                } else {
+                    results.innerHTML = createTestItem('Account Button Click', 'fail', 'Button not found');
+                    log('Interactive: Account button not found', 'error');
+                }
+            } catch (e) {
+                results.innerHTML = createTestItem('Account Button Click', 'fail', e.message);
+                log('Interactive: Account button test failed - ' + e.message, 'error');
+            }
+        }
+
+        function testLoginModal() {
+            const results = document.getElementById('interactive-results');
+            try {
+                const modal = parent.document.getElementById('loginModal');
+                if (modal) {
+                    modal.classList.add('show');
+                    setTimeout(() => modal.classList.remove('show'), 2000);
+                    results.innerHTML = createTestItem('Login Modal', 'pass', 'Modal shown for 2 seconds');
+                    log('Interactive: Login modal displayed', 'success');
+                } else {
+                    results.innerHTML = createTestItem('Login Modal', 'fail', 'Modal not found');
+                    log('Interactive: Login modal not found', 'error');
+                }
+            } catch (e) {
+                results.innerHTML = createTestItem('Login Modal', 'fail', e.message);
+                log('Interactive: Login modal test failed - ' + e.message, 'error');
+            }
+        }
+
+        function testSignupModal() {
+            const results = document.getElementById('interactive-results');
+            try {
+                const modal = parent.document.getElementById('signupModal');
+                if (modal) {
+                    modal.classList.add('show');
+                    setTimeout(() => modal.classList.remove('show'), 2000);
+                    results.innerHTML = createTestItem('Signup Modal', 'pass', 'Modal shown for 2 seconds');
+                    log('Interactive: Signup modal displayed', 'success');
+                } else {
+                    results.innerHTML = createTestItem('Signup Modal', 'fail', 'Modal not found');
+                    log('Interactive: Signup modal not found', 'error');
+                }
+            } catch (e) {
+                results.innerHTML = createTestItem('Signup Modal', 'fail', e.message);
+                log('Interactive: Signup modal test failed - ' + e.message, 'error');
+            }
+        }
+
+        function testUserMenu() {
+            const results = document.getElementById('interactive-results');
+            try {
+                const menu = parent.document.getElementById('userMenu');
+                if (menu) {
+                    menu.classList.add('show');
+                    setTimeout(() => menu.classList.remove('show'), 2000);
+                    results.innerHTML = createTestItem('User Menu', 'pass', 'Menu shown for 2 seconds');
+                    log('Interactive: User menu displayed', 'success');
+                } else {
+                    results.innerHTML = createTestItem('User Menu', 'fail', 'Menu not found');
+                    log('Interactive: User menu not found', 'error');
+                }
+            } catch (e) {
+                results.innerHTML = createTestItem('User Menu', 'fail', e.message);
+                log('Interactive: User menu test failed - ' + e.message, 'error');
+            }
+        }
+
+        function testSettingsModal() {
+            const results = document.getElementById('interactive-results');
+            try {
+                const modal = parent.document.getElementById('settingsModal');
+                if (modal) {
+                    modal.classList.add('show');
+                    setTimeout(() => modal.classList.remove('show'), 2000);
+                    results.innerHTML = createTestItem('Settings Modal', 'pass', 'Modal shown for 2 seconds');
+                    log('Interactive: Settings modal displayed', 'success');
+                } else {
+                    results.innerHTML = createTestItem('Settings Modal', 'fail', 'Modal not found');
+                    log('Interactive: Settings modal not found', 'error');
+                }
+            } catch (e) {
+                results.innerHTML = createTestItem('Settings Modal', 'fail', e.message);
+                log('Interactive: Settings modal test failed - ' + e.message, 'error');
+            }
+        }
+
+        function testUsernameModal() {
+            const results = document.getElementById('interactive-results');
+            try {
+                const modal = parent.document.getElementById('usernameModal');
+                if (modal) {
+                    modal.classList.add('show');
+                    setTimeout(() => modal.classList.remove('show'), 2000);
+                    results.innerHTML = createTestItem('Username Modal', 'pass', 'Modal shown for 2 seconds');
+                    log('Interactive: Username modal displayed', 'success');
+                } else {
+                    results.innerHTML = createTestItem('Username Modal', 'fail', 'Modal not found');
+                    log('Interactive: Username modal not found', 'error');
+                }
+            } catch (e) {
+                results.innerHTML = createTestItem('Username Modal', 'fail', e.message);
+                log('Interactive: Username modal test failed - ' + e.message, 'error');
+            }
+        }
+
+        // Run all tests on load
+        window.addEventListener('load', () => {
+            log('Starting KeySprint Login System Tests...', 'info');
+            setTimeout(() => {
+                testDOMElements();
+                testJSFunctions();
+                testFirebase();
+                log('All automated tests completed!', 'success');
+            }, 1000);
+        });
+    </script>
+</body>
+</html>
